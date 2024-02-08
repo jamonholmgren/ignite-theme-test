@@ -1,11 +1,12 @@
 import React, { FC } from "react"
 import * as Application from "expo-application"
-import { Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
+import { Alert, Linking, Platform, TextStyle, View, ViewStyle } from "react-native"
 import { Button, ListItem, Screen, Text } from "../components"
 import { DemoTabScreenProps } from "../navigators/DemoNavigator"
 import { colors, spacing } from "../theme"
 import { isRTL } from "../i18n"
 import { useStores } from "../models"
+import { ThemedStyle, Themes, useAppTheme } from "app/utils/useAppTheme"
 
 /**
  * @param {string} url - The URL to open in the browser.
@@ -21,6 +22,8 @@ export const DemoDebugScreen: FC<DemoTabScreenProps<"DemoDebug">> = function Dem
   const {
     authenticationStore: { logout },
   } = useStores()
+
+  const { theme, themed, setThemeOverride } = useAppTheme()
 
   const usingHermes = typeof HermesInternal === "object" && HermesInternal !== null
   // @ts-expect-error
@@ -46,14 +49,26 @@ export const DemoDebugScreen: FC<DemoTabScreenProps<"DemoDebug">> = function Dem
   )
 
   return (
-    <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={$container}>
+    <Screen preset="scroll" safeAreaEdges={["top"]} contentContainerStyle={themed($container)}>
       <Text
         style={$reportBugsLink}
         tx="demoDebugScreen.reportBugs"
         onPress={() => openLinkInBrowser("https://github.com/infinitered/ignite/issues")}
       />
-      <Text style={$title} preset="heading" tx="demoDebugScreen.title" />
-      <View style={$itemsContainer}>
+      <Text style={themed($title)} preset="heading" tx="demoDebugScreen.title" />
+
+      <Button
+        onPress={() => {
+          if (theme === "dark") {
+            setThemeOverride("light")
+          } else {
+            setThemeOverride("dark")
+          }
+        }}
+        text={`Switch Theme: ${theme}`}
+      />
+
+      <View style={themed($itemsContainer)}>
         <ListItem
           LeftComponent={
             <View style={$item}>
@@ -114,14 +129,26 @@ export const DemoDebugScreen: FC<DemoTabScreenProps<"DemoDebug">> = function Dem
   )
 }
 
-const $container: ViewStyle = {
+const $container: ThemedStyle<ViewStyle> = {
+  light: {
+    backgroundColor: colors.light.background,
+  },
+  dark: {
+    backgroundColor: colors.dark.background,
+  },
   paddingTop: spacing.lg + spacing.xl,
   paddingBottom: spacing.xxl,
   paddingHorizontal: spacing.lg,
 }
 
-const $title: TextStyle = {
+const $title: ThemedStyle<TextStyle> = {
   marginBottom: spacing.xxl,
+  light: {
+    color: colors.palette.neutral800,
+  },
+  dark: {
+    color: colors.palette.angry100,
+  },
 }
 
 const $reportBugsLink: TextStyle = {
@@ -134,8 +161,14 @@ const $item: ViewStyle = {
   marginBottom: spacing.md,
 }
 
-const $itemsContainer: ViewStyle = {
+const $itemsContainer: ThemedStyle<ViewStyle> = {
   marginBottom: spacing.xl,
+  light: {
+    backgroundColor: colors.error,
+  },
+  dark: {
+    backgroundColor: colors.errorBackground,
+  },
 }
 
 const $button: ViewStyle = {

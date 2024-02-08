@@ -44,6 +44,15 @@ export const colors = {
    * semantic names as much as possible.
    */
   palette,
+
+  light: {
+    background: palette.neutral100,
+  },
+
+  dark: {
+    background: palette.neutral800,
+  },
+
   /**
    * A helper for making something see-thru.
    */
